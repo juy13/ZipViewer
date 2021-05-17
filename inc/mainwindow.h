@@ -12,17 +12,12 @@
 #include <QtWidgets/QFileDialog>
 #include <zip.h>
 #include <QtWidgets/QTableView>
+#include "inc/TableModel.h"
+#include "inc/FileInfo.h"
 
 namespace Ui {
     class MainWindow;
 }
-
-typedef struct FileInfo
-{
-    QString name;
-    uint64_t compressed_size;
-    uint64_t uncompressed_size;
-}FileInfo;
 
 class ZipViewerWin : public QMainWindow
 {
@@ -45,14 +40,15 @@ private:
     //QAbstractItemModel *model = new StringListModel(numbers);
     std::vector<FileInfo> fileInfoVec;
 
-    int32_t test_unzip_compat(QString fileName);
+    int32_t unzip_compat(const QString& fileName);
     int32_t test_unzip_compat_int(unzFile unzip);
 
-
+    TableModel *table ;
     void on_actionExit_triggered();
 
 private slots:
     void chooseFl();
+
 };
 
 #endif //ZIPVIEWER_MAINWINDOW_H
