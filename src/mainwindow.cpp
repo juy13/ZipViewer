@@ -78,21 +78,17 @@ int32_t ZipViewerWin::test_unzip_compat_int(unzFile unzip) {
     unz_global_info global_info;
     unz_file_info64 file_info64;
     unz_file_info file_info;
-    unz_file_pos file_pos;
     int32_t err = UNZ_OK;
     int32_t flEnd = UNZ_OK;
     bool flag = true;
-    int32_t bytes_read = 0;
-    char comment[120];
     char filename[120];
-    char buffer[120];
 
     memset(&file_info, 0, sizeof(file_info));
     memset(&file_info64, 0, sizeof(file_info64));
     memset(&global_info, 0, sizeof(global_info));
     memset(&global_info64, 0, sizeof(global_info64));
 
-    comment[0] = 0;
+
     err = unzGetGlobalInfo(unzip, &global_info);
     if (err != UNZ_OK)
     {

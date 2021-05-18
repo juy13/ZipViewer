@@ -18,13 +18,14 @@ set(CMAKE_AUTORCC ON)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
 
 
-include_directories(/home/julian/Downloads/minizip-ng-master/minizip-install/include)
+include_directories(${CMAKE_CURRENT_LIST_DIR}/include)
 
 
-find_package(minizip 3.0.2 EXACT REQUIRED PATHS /home/julian/Downloads/minizip-ng-master/minizip-install/lib/cmake)
+find_package(minizip 3.0.2 EXACT REQUIRED PATHS ${CMAKE_CURRENT_LIST_DIR}/lib/cmake)
 find_package(Qt5 REQUIRED COMPONENTS Widgets)
 find_package(Qt5 REQUIRED COMPONENTS Core)
 
+message(${CMAKE_CURRENT_LIST_DIR})
 
 add_executable(ZipViewer src/main.cpp
         src/mainwindow.cpp inc/mainwindow.h
@@ -34,7 +35,7 @@ add_executable(ZipViewer src/main.cpp
 target_compile_definitions(ZipViewer PRIVATE -DHAVE_STDINT_H;-DHAVE_INTTYPES_H;-D_POSIX_C_SOURCE=200112L -DHAVE_ZLIB;-DHAVE_LZMA;-DLZMA_API_STATIC;-DHAVE_ICONV;-DMZ_ZIP_SIGNING;-DHAVE_PKCRYPT;-DHAVE_WZAES)
 target_compile_definitions(ZipViewer PRIVATE -DHAVE_COMPAT)
 
-target_include_directories(ZipViewer PRIVATE /home/julian/Downloads/minizip-ng-master/minizip-install/include)
+target_include_directories(ZipViewer PRIVATE ${CMAKE_CURRENT_LIST_DIR}/include)
 target_link_libraries(ZipViewer  MINIZIP::minizip)
 target_link_libraries(ZipViewer  Qt5::Widgets)
 target_link_libraries(ZipViewer  Qt5::Core)
