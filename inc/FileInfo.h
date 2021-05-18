@@ -8,7 +8,6 @@
 typedef struct FileInfo
 {
     QString name;
-    unsigned long int compressed_size{};
     unsigned long long uncompressed_size;
 
     FileInfo(QString, unsigned long long);

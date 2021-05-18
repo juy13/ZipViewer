@@ -45,9 +45,11 @@ private:
 
     TableModel *table ;
     void on_actionExit_triggered();
+    void resWin();
 
 private slots:
     void chooseFl();
+
 
 };
 

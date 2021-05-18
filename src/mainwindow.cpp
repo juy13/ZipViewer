@@ -6,6 +6,7 @@
 #include <utility>
 #include "inc/mainwindow.h"
 #include "QHeaderView"
+#include <QMessageBox>
 
 
 ZipViewerWin::ZipViewerWin(QWidget *parent)
@@ -16,15 +17,15 @@ ZipViewerWin::ZipViewerWin(QWidget *parent)
     this->nmNchsLayoutH->addWidget(chsFile);
     this->table = new TableModel(this);
     this->ZipTable->setModel(table);
-    this->ZipTable->verticalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
     this->ZipTable->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
-    // >setResizeMode(QHeaderView::ResizeToContents);
     ZipLayoutV->addLayout(nmNchsLayoutH);
     ZipLayoutV->addWidget(ZipTable);
     ZipViewerWid->setLayout(ZipLayoutV);
     connect(chsFile, SIGNAL(clicked()), this, SLOT(chooseFl()));
-    setFixedSize(690, 600);
+    setFixedSize(300, 600);
 }
+
+
 
 void ZipViewerWin::on_actionExit_triggered()
 {
@@ -48,6 +49,7 @@ void ZipViewerWin::chooseFl()
                                                     tr("Zip files (*.zip)"));
     nmFile->setText(fileName);
     unzip_compat(fileName);
+    resWin();
 
 }
 
@@ -58,7 +60,8 @@ int32_t ZipViewerWin::unzip_compat(const QString& fileName) {
     unzip = unzOpen(fileName.toStdString().c_str());
     if (unzip == nullptr)
     {
-        printf("Failed to open test zip file\n");
+        QMessageBox::critical(this, "Attention","Failed to open test zip file");
+        //printf("Failed to open test zip file\n");
         return UNZ_PARAMERROR;
     }
     err = test_unzip_compat_int(unzip);
@@ -66,8 +69,6 @@ int32_t ZipViewerWin::unzip_compat(const QString& fileName) {
 
     if (err != UNZ_OK)
         return err;
-
-    printf("Compat unzip.. OK\n");
 
     return UNZ_OK;
 }
@@ -95,18 +96,24 @@ int32_t ZipViewerWin::test_unzip_compat_int(unzFile unzip) {
     err = unzGetGlobalInfo(unzip, &global_info);
     if (err != UNZ_OK)
     {
-        printf("Failed to get global info  (%" PRId32 ")\n", err);
+        QString msg = QString("Failed to get global info  (") + err + ")";
+        QMessageBox::critical(this, "Attention", msg);
+        //printf("Failed to get global info  (%" PRId32 ")\n", err);
         return err;
     }
     err = unzGetGlobalInfo64(unzip, &global_info64);
     if (err != UNZ_OK)
     {
-        printf("Failed to get global info 64-bit (%" PRId32 ")\n", err);
+        QString msg = QString("Failed to get global info 64-bit (") + err + ")";
+        QMessageBox::critical(this, "Attention", msg);
+        //printf("Failed to get global info 64-bit (%" PRId32 ")\n", err);
         return err;
     }
     if (global_info.number_disk_with_CD != 0 || global_info64.number_disk_with_CD != 0)
     {
-        printf("Invalid disk with cd (%" PRIu32 ")\n", global_info.number_disk_with_CD);
+        QString msg = QString("Invalid disk with cd (") + err + ")";
+        QMessageBox::critical(this, "Attention", msg);
+        //printf("Invalid disk with cd (%" PRIu32 ")\n", global_info.number_disk_with_CD);
         return err;
     }
 
@@ -129,7 +136,6 @@ int32_t ZipViewerWin::test_unzip_compat_int(unzFile unzip) {
             {
                 FileInfo fl;
                 fl.name = nmFile->text() + '/' + filename;
-                fl.compressed_size = file_info64.compressed_size;
                 fl.uncompressed_size = file_info64.uncompressed_size;
                 fileInfoVec.push_back(fl);
             }
@@ -140,7 +146,7 @@ int32_t ZipViewerWin::test_unzip_compat_int(unzFile unzip) {
     QModelIndex index = QModelIndex();
     for(const auto& i : fileInfoVec)
     {
-        std::cout << i.name.toStdString() << " " << i.uncompressed_size << " " << i.compressed_size << std::endl;
+        //std::cout << i.name.toStdString() << " " << i.uncompressed_size << " " << std::endl;
         if(row == 0)
         {
             table->insertRows(row, 1, QModelIndex());
@@ -148,12 +154,34 @@ int32_t ZipViewerWin::test_unzip_compat_int(unzFile unzip) {
             table->insertRows(row, 1, index);
         }
         index = table->index(row, 0, index);
-        table->setData(index, i.name, Qt::EditRole);
+        if( !table->setData(index, i.name, Qt::EditRole))
+        {
+            QMessageBox::critical(this, "Attention", "Can't set data");
+            return UNZ_ERRNO;
+        }
         index = table->index(row, 1, index);
-        table->setData(index, i.uncompressed_size, Qt::EditRole);
+        if( !table->setData(index, i.uncompressed_size, Qt::EditRole))
+        {
+            QMessageBox::critical(this, "Attention", "Can't set data");
+            return UNZ_ERRNO;
+        }
 
         row++;
     }
+
+    return UNZ_OK;
+
+}
+
+void ZipViewerWin::resWin() {
+
+    int len1 = this->ZipTable->columnWidth(0);
+    int len2 = this->ZipTable->columnWidth(1);
+
+    std::cout << len1 << " " << len2 << std::endl;
+
+    setFixedSize(len1 + len2 + 30, 600);
+    std::cout << "Hi" << std::endl;
 
 }
 

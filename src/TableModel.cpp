@@ -2,6 +2,7 @@
 // Created by julian on 5/17/21.
 //
 
+#include <QtGui/QResizeEvent>
 #include "inc/TableModel.h"
 
 TableModel::TableModel(QObject *parent): QAbstractTableModel(parent) {
